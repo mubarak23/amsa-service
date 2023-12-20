@@ -1,0 +1,300 @@
+{
+	"components": {
+		"examples": {},
+		"headers": {},
+		"parameters": {},
+		"requestBodies": {},
+		"responses": {},
+		"schemas": {
+			"FileCloudProviders": {
+				"enum": [
+					"CLOUDINARY"
+				],
+				"type": "string"
+			},
+			"ICloudFile": {
+				"properties": {
+					"keyFromCloudProvider": {
+						"type": "string"
+					},
+					"url": {
+						"type": "string"
+					},
+					"mimetype": {
+						"type": "string"
+					},
+					"fileCloudProvider": {
+						"$ref": "#/components/schemas/FileCloudProviders"
+					}
+				},
+				"required": [
+					"keyFromCloudProvider",
+					"url",
+					"mimetype",
+					"fileCloudProvider"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IProfile": {
+				"properties": {
+					"userUuid": {
+						"type": "string"
+					},
+					"userName": {
+						"type": "string"
+					},
+					"emailAddress": {
+						"type": "string"
+					},
+					"photo": {
+						"$ref": "#/components/schemas/ICloudFile"
+					}
+				},
+				"required": [
+					"userUuid",
+					"userName",
+					"emailAddress",
+					"photo"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"DetailedError": {
+				"properties": {
+					"message": {
+						"type": "string"
+					},
+					"standardizedErrorCode": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"message",
+					"standardizedErrorCode"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IServerResponse_IProfile_": {
+				"properties": {
+					"status": {
+						"type": "boolean"
+					},
+					"message": {
+						"type": "string"
+					},
+					"data": {
+						"$ref": "#/components/schemas/IProfile"
+					},
+					"error": {
+						"type": "string"
+					},
+					"errors": {
+						"items": {
+							"$ref": "#/components/schemas/DetailedError"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"status"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IAccessTokenData": {
+				"properties": {
+					"token": {
+						"type": "string"
+					},
+					"refreshToken": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"token",
+					"refreshToken"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IServerResponse_IAccessTokenData_": {
+				"properties": {
+					"status": {
+						"type": "boolean"
+					},
+					"message": {
+						"type": "string"
+					},
+					"data": {
+						"$ref": "#/components/schemas/IAccessTokenData"
+					},
+					"error": {
+						"type": "string"
+					},
+					"errors": {
+						"items": {
+							"$ref": "#/components/schemas/DetailedError"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"status"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"ISignupDto": {
+				"properties": {
+					"userName": {
+						"type": "string"
+					},
+					"emailAddress": {
+						"type": "string"
+					},
+					"password": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"userName",
+					"emailAddress",
+					"password"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"ILoginDto": {
+				"properties": {
+					"emailAddress": {
+						"type": "string"
+					},
+					"password": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"emailAddress",
+					"password"
+				],
+				"type": "object",
+				"additionalProperties": false
+			}
+		},
+		"securitySchemes": {
+			"jwt": {
+				"type": "apiKey",
+				"name": "x-access-token",
+				"in": "header"
+			}
+		}
+	},
+	"info": {
+		"title": "amsa-backend",
+		"version": "1.0.0",
+		"description": "Amsa Service Backend",
+		"contact": {
+			"name": "Mubarak Aminu"
+		}
+	},
+	"openapi": "3.0.0",
+	"paths": {
+		"/api/agent/profile": {
+			"get": {
+				"operationId": "AgentProfile",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/IServerResponse_IProfile_"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Agent Service"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": []
+			}
+		},
+		"/api/auth/agent/signup": {
+			"post": {
+				"operationId": "AgentSignup",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/IServerResponse_IAccessTokenData_"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Auth Service"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/ISignupDto"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/auth/agent/signin": {
+			"post": {
+				"operationId": "AgentSignin",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/IServerResponse_IAccessTokenData_"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Auth Service"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/ILoginDto"
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+	"servers": [
+		{
+			"url": "/"
+		}
+	]
+}
