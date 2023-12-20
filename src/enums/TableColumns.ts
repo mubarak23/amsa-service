@@ -29,6 +29,7 @@ export enum QuestionColumns {
   UUID = "uuid",
   TITLE = "title",
   CONTENT = "content",
+  PHOTOS = "photos",
   USER_ID = "user_id",
   VOTE_COUNTS = "vote_counts"
 }

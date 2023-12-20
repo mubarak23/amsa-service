@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import TableColumns, { QuestionColumns } from "../enums/TableColumns";
 import Tables from "../enums/Tables";
+import { ICloudFile } from "../interfaces/ICloudFile";
 import { utcNow } from "../utils/core";
 import DefualtEntity from "./BaseEntity";
 import { User } from "./User";
@@ -18,6 +19,9 @@ export class Question extends DefualtEntity {
   @Column({ name: QuestionColumns.CONTENT, nullable: false })
   content: string;
 
+  @Column({ type: "jsonb", name: QuestionColumns.PHOTOS, nullable: true })
+  photos: ICloudFile[];
+
   @ManyToOne(() => User, { primary: true })
   @JoinColumn({
     name: QuestionColumns.USER_ID,
@@ -31,9 +35,6 @@ export class Question extends DefualtEntity {
 
   @Column({ type: "integer", name: QuestionColumns.VOTE_COUNTS, nullable: true, default: 0 })
   voteCounts: string;
-
-
-
 
   initializeNewQuestion(userId: number, title: string, content: string) {
     this.uuid = uuidv4();

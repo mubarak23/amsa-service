@@ -17,6 +17,17 @@ export const agentPublicProfile = async (currentUser: User): Promise<IProfile> =
     return resProfile
 }
 
+export const authorPublicProfile = async (currentUser: User): Promise<IProfile> => {
+  const resProfile: IProfile =  {
+      userUuid: currentUser.uuid,
+      userName: currentUser.userName,
+      emailAddress: currentUser.emailAddress,
+      photo: currentUser.photo
+  }
+  return resProfile
+}
+
+
 export const getPublicProfileFromUserIds = async (userIds: number[]): Promise<IProfile[]> => {
     if (!userIds.length) {
       return []
