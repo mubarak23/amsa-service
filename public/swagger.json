@@ -239,6 +239,36 @@
 				"type": "object",
 				"additionalProperties": false
 			},
+			"IServerResponse_QuestionResponseDto-Array_": {
+				"properties": {
+					"status": {
+						"type": "boolean"
+					},
+					"message": {
+						"type": "string"
+					},
+					"data": {
+						"items": {
+							"$ref": "#/components/schemas/QuestionResponseDto"
+						},
+						"type": "array"
+					},
+					"error": {
+						"type": "string"
+					},
+					"errors": {
+						"items": {
+							"$ref": "#/components/schemas/DetailedError"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"status"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
 			"IServerResponse_QuestionResponseDto_": {
 				"properties": {
 					"status": {
@@ -389,6 +419,54 @@
 						}
 					}
 				}
+			}
+		},
+		"/api/question": {
+			"get": {
+				"operationId": "MyQuestions",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/IServerResponse_QuestionResponseDto-Array_"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Question Service"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": []
+			}
+		},
+		"/api/question/all": {
+			"get": {
+				"operationId": "Questions",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/IServerResponse_QuestionResponseDto-Array_"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Question Service"
+				],
+				"security": [],
+				"parameters": []
 			}
 		},
 		"/api/question/add": {

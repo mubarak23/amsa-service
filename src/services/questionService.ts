@@ -5,7 +5,7 @@
 // fetch my questions
 // edit my questions
 // delete question 
-
+import * as _ from 'underscore';
 import { getFreshConnection } from "../db";
 import { NewQuestionDto } from "../dto/NewQuestionDto";
 import { QuestionResponseDto } from "../dto/QuestionResponseDto";
@@ -64,3 +64,35 @@ export const addQuestion = async (payload: NewQuestionDto, user: User) : Promise
   return questionResponse;
  
 }
+
+export const transformQuestions = async (questions: Question[]) : Promise<QuestionResponseDto[]> => {
+
+  const authorUserIds = questions.map((question) => question.userId);
+
+
+  const developerPublicProfiles = await profileService.getPublicProfileFromUserIds(authorUserIds);
+  const questionResponse: QuestionResponseDto[] = []
+
+  for(const question of questions) {
+    
+    const authorPublicProfile = developerPublicProfiles.find(
+      (publicProfile) => publicProfile.userUuid === question.author.uuid
+    );
+
+    const questionImages = question?.photos || []
+    const projectResponseImages: {url: string, mimetype: string, keyFromCloudProvider: string }[] = 
+    questionImages.map(pImage => _.omit(pImage, 'fileCloudProvider'))
+
+
+    const oneQuestionResponse: QuestionResponseDto = question.toResponseDto(
+      authorPublicProfile!,
+      question,
+      questionImages
+    )
+    questionResponse.push(oneQuestionResponse)
+  }
+
+  return questionResponse;
+
+}
+

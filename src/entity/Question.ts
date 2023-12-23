@@ -1,6 +1,8 @@
 import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 import { v4 as uuidv4 } from "uuid";
+import { QuestionResponseDto } from "../dto/QuestionResponseDto";
 
+import { IProfile } from "../dto/IProfileResponse";
 import TableColumns, { QuestionColumns } from "../enums/TableColumns";
 import Tables from "../enums/Tables";
 import { ICloudFile } from "../interfaces/ICloudFile";
@@ -44,5 +46,24 @@ export class Question extends DefualtEntity {
     this.createdAt =  utcNow();
     return this;
   }
+
+  toResponseDto(
+    authorPublicProfile: IProfile,
+    question: Question,
+    questionResponseImages?: {url: string, mimetype: string}[],
+  ): QuestionResponseDto {
+    
+    return {
+      uuid: question.uuid,
+      title: question.title,
+      content: question.content,
+      photos: questionResponseImages,
+      userId: question.userId,
+      createdAt: question.createdAt,
+      updatedAt: question.updatedAt,
+      author: authorPublicProfile,
+    }
+  }
+
 
 }
