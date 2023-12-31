@@ -1,3 +1,4 @@
+import { AnswerResponse } from "./AnswerResponse";
 import { IProfile } from "./IProfileResponse";
 
 // QuestionResponseDto
@@ -9,6 +10,7 @@ export interface QuestionResponseDto {
     url: string,
     mimetype: string,
   }[],
+  answers?: AnswerResponse[], 
   userId: number,
   author: IProfile,
   createdAt: Date,
