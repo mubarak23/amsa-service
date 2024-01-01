@@ -103,6 +103,132 @@
 				"type": "object",
 				"additionalProperties": false
 			},
+			"AnswerResponse": {
+				"properties": {
+					"questionUuid": {
+						"type": "string"
+					},
+					"content": {
+						"type": "string"
+					},
+					"author": {
+						"$ref": "#/components/schemas/IProfile"
+					}
+				},
+				"required": [
+					"questionUuid",
+					"content",
+					"author"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"QuestionResponseDto": {
+				"properties": {
+					"uuid": {
+						"type": "string"
+					},
+					"title": {
+						"type": "string"
+					},
+					"content": {
+						"type": "string"
+					},
+					"photos": {
+						"items": {
+							"properties": {
+								"mimetype": {
+									"type": "string"
+								},
+								"url": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"mimetype",
+								"url"
+							],
+							"type": "object"
+						},
+						"type": "array"
+					},
+					"answers": {
+						"items": {
+							"$ref": "#/components/schemas/AnswerResponse"
+						},
+						"type": "array"
+					},
+					"userId": {
+						"type": "number",
+						"format": "double"
+					},
+					"author": {
+						"$ref": "#/components/schemas/IProfile"
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"updatedAt": {
+						"type": "string",
+						"format": "date-time"
+					}
+				},
+				"required": [
+					"uuid",
+					"title",
+					"content",
+					"userId",
+					"author",
+					"createdAt",
+					"updatedAt"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IServerResponse_QuestionResponseDto_": {
+				"properties": {
+					"status": {
+						"type": "boolean"
+					},
+					"message": {
+						"type": "string"
+					},
+					"data": {
+						"$ref": "#/components/schemas/QuestionResponseDto"
+					},
+					"error": {
+						"type": "string"
+					},
+					"errors": {
+						"items": {
+							"$ref": "#/components/schemas/DetailedError"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"status"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"NewQuestionAnswerDto": {
+				"properties": {
+					"questionUuid": {
+						"type": "string"
+					},
+					"content": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"questionUuid",
+					"content"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
 			"IAccessTokenData": {
 				"properties": {
 					"token": {
@@ -182,63 +308,6 @@
 				"type": "object",
 				"additionalProperties": false
 			},
-			"QuestionResponseDto": {
-				"properties": {
-					"uuid": {
-						"type": "string"
-					},
-					"title": {
-						"type": "string"
-					},
-					"content": {
-						"type": "string"
-					},
-					"photos": {
-						"items": {
-							"properties": {
-								"mimetype": {
-									"type": "string"
-								},
-								"url": {
-									"type": "string"
-								}
-							},
-							"required": [
-								"mimetype",
-								"url"
-							],
-							"type": "object"
-						},
-						"type": "array"
-					},
-					"userId": {
-						"type": "number",
-						"format": "double"
-					},
-					"author": {
-						"$ref": "#/components/schemas/IProfile"
-					},
-					"createdAt": {
-						"type": "string",
-						"format": "date-time"
-					},
-					"updatedAt": {
-						"type": "string",
-						"format": "date-time"
-					}
-				},
-				"required": [
-					"uuid",
-					"title",
-					"content",
-					"userId",
-					"author",
-					"createdAt",
-					"updatedAt"
-				],
-				"type": "object",
-				"additionalProperties": false
-			},
 			"IServerResponse_QuestionResponseDto-Array_": {
 				"properties": {
 					"status": {
@@ -252,33 +321,6 @@
 							"$ref": "#/components/schemas/QuestionResponseDto"
 						},
 						"type": "array"
-					},
-					"error": {
-						"type": "string"
-					},
-					"errors": {
-						"items": {
-							"$ref": "#/components/schemas/DetailedError"
-						},
-						"type": "array"
-					}
-				},
-				"required": [
-					"status"
-				],
-				"type": "object",
-				"additionalProperties": false
-			},
-			"IServerResponse_QuestionResponseDto_": {
-				"properties": {
-					"status": {
-						"type": "boolean"
-					},
-					"message": {
-						"type": "string"
-					},
-					"data": {
-						"$ref": "#/components/schemas/QuestionResponseDto"
 					},
 					"error": {
 						"type": "string"
@@ -355,6 +397,42 @@
 					}
 				],
 				"parameters": []
+			}
+		},
+		"/api/anwser": {
+			"post": {
+				"operationId": "AnwserQuestion",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/IServerResponse_QuestionResponseDto_"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Anwser Service"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/NewQuestionAnswerDto"
+							}
+						}
+					}
+				}
 			}
 		},
 		"/api/auth/agent/signup": {

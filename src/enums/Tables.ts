@@ -3,7 +3,7 @@ enum Tables {
   USERS = "users",
   QUESTIONS = "questions",
   ANSWERS = "answers", 
-
+  ANSWERS_VOTE_COUNTS = "anwsers_vote_counts",
   SMS_SEND_LOGS = "sms_send_logs",
   CRON_RUNS = "cron_runs",
 

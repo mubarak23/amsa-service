@@ -37,7 +37,7 @@ export class Answer extends DefualtEntity {
   author: User;
 
   @Column({ type: "integer", name: AnswerColumns.VOTE_COUNTS, nullable: true, default: 0 })
-  voteCounts: string;
+  voteCounts: number;
 
   initializeNewQuestionAnwser(userId: number, questionId: number, content: string) {
     this.uuid = uuidv4();
