@@ -2,6 +2,9 @@ import { IProfile } from "./IProfileResponse";
 
 export interface AnswerResponse {
   questionUuid: string, 
+  author: IProfile,
   content: string,
-  author: IProfile
+  createdAt: Date,
+  updatedAt: Date,
+
 }

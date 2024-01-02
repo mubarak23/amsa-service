@@ -2,6 +2,7 @@ import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 import { v4 as uuidv4 } from "uuid";
 import { QuestionResponseDto } from "../dto/QuestionResponseDto";
 
+import { AnswerResponse } from "../dto/AnswerResponse";
 import { IProfile } from "../dto/IProfileResponse";
 import TableColumns, { QuestionColumns } from "../enums/TableColumns";
 import Tables from "../enums/Tables";
@@ -46,23 +47,24 @@ export class Question extends DefualtEntity {
     this.createdAt =  utcNow();
     return this;
   }
-
   toResponseDto(
     authorPublicProfile: IProfile,
     question: Question,
     questionResponseImages?: {url: string, mimetype: string}[],
+    anwsers?: AnswerResponse[] 
   ): QuestionResponseDto {
-    
     return {
       uuid: question.uuid,
       title: question.title,
       content: question.content,
-      photos: questionResponseImages,
+      photos: questionResponseImages || null,
       userId: question.userId,
+      answers: anwsers || null,
       createdAt: question.createdAt,
       updatedAt: question.updatedAt,
       author: authorPublicProfile,
     }
+    
   }
 
 

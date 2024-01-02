@@ -2,6 +2,7 @@
 
 import { getFreshConnection } from "../db";
 import { AnswerResponse } from "../dto/AnswerResponse";
+import { IProfile } from "../dto/IProfileResponse";
 import { NewQuestionAnswerDto } from "../dto/NewQuestionAnswerDto";
 import { QuestionResponseDto } from "../dto/QuestionResponseDto";
 import { VoteAnwserDto } from "../dto/VoteAnwserDto";
@@ -41,11 +42,8 @@ export const answerQuestion = async (payload: NewQuestionAnswerDto, user: User) 
 
   const authorAnwser = await profileService.authorPublicProfile(user);
 
-  const answerResponse: AnswerResponse = {
-    questionUuid: questionExist.uuid,
-    content: saveQuestionAnwser.content,
-    author: authorAnwser
-  }
+  const answerResponse: AnswerResponse = await transformQuestionAnwser(saveQuestionAnwser, authorAnwser);
+  
   const answerResponses : AnswerResponse[] = []
   answerResponses.push(answerResponse);
 
@@ -62,6 +60,11 @@ export const answerQuestion = async (payload: NewQuestionAnswerDto, user: User) 
   }
   return questionWithAnwserResponse;
 
+}
+
+export const transformQuestionAnwser = async ( anwser: Answer, authorAnwser: IProfile): Promise<AnswerResponse> => {
+  const transformQuestionAnwser = anwser.toResponseDto(anwser, authorAnwser)
+  return transformQuestionAnwser;
 }
 
 export const voteAnswerQuestion = async (payload: VoteAnwserDto, user: User) : Promise<QuestionResponseDto> => {
@@ -127,11 +130,14 @@ export const voteAnswerQuestion = async (payload: VoteAnwserDto, user: User) : P
     })
     .execute();
     
-    const answerResponse: AnswerResponse = {
-      questionUuid: questionExist.uuid,
-      content: answerExist.content,
-      author: authorAnwser
-    }
+    const answerResponse: AnswerResponse = await transformQuestionAnwser(answerExist, authorAnwser);
+    
+    //  = {
+    //   questionUuid: questionExist.uuid,
+    //   content: answerExist.content,
+    //   author: authorAnwser
+    // }
+
     const answerResponses : AnswerResponse[] = []
     answerResponses.push(answerResponse);
   
@@ -154,11 +160,14 @@ export const voteAnswerQuestion = async (payload: VoteAnwserDto, user: User) : P
   const newAnwserVoteCount = new AnswerVoteCount().initializeNewAnwserVoteCount(user.id, questionExist.id, answerExist.id)
   await AnwserRepo.save(newAnwserVoteCount)
 
-  const answerResponse: AnswerResponse = {
-    questionUuid: questionExist.uuid,
-    content: answerExist.content,
-    author: authorAnwser
-  }
+  // const answerResponse: AnswerResponse = {
+  //   questionUuid: questionExist.uuid,
+  //   content: answerExist.content,
+  //   author: authorAnwser
+  // }
+
+  const answerResponse: AnswerResponse = await transformQuestionAnwser(answerExist, authorAnwser);
+  
   const answerResponses : AnswerResponse[] = []
   answerResponses.push(answerResponse);
 

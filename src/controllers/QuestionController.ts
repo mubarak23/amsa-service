@@ -1,4 +1,4 @@
-import { Body, Get, Post, Request, Route, Security, Tags } from "tsoa"
+import { Body, Get, Post, Query, Request, Route, Security, Tags } from "tsoa"
 import { getFreshConnection } from "../db"
 import { NewQuestionDto } from "../dto/NewQuestionDto"
 import { QuestionResponseDto } from "../dto/QuestionResponseDto"
@@ -73,6 +73,22 @@ public async questions(@Request() req: any): Promise<IServerResponse<QuestionRes
         message: "Question Response"
     }
     return resData
+}
+
+ 
+  @Get('/all')
+  public async questionAnwsers(
+    @Request() req: any,
+    @Query('questionUuid') questionUuid: string,
+    ): Promise<IServerResponse<QuestionResponseDto>>{
+    const transformQuestionWithAnwsers = await QuestionService.questionAnwsers(questionUuid);
+
+    const resData : IServerResponse<QuestionResponseDto> = {
+      status: true,
+      data: transformQuestionWithAnwsers,
+      message: "Question With Anwsers Response"
+  }
+  return resData
 }
 
 

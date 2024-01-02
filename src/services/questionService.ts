@@ -7,12 +7,15 @@
 // delete question 
 import * as _ from 'underscore';
 import { getFreshConnection } from "../db";
+import { AnswerResponse } from '../dto/AnswerResponse';
 import { NewQuestionDto } from "../dto/NewQuestionDto";
 import { QuestionResponseDto } from "../dto/QuestionResponseDto";
+import { Answer } from '../entity/Answer';
 import { Question } from "../entity/Question";
 import { User } from "../entity/User";
+import { UnprocessableEntityError } from '../utils/error-response-types';
+import * as AnwserService from './anwserService';
 import * as profileService from './profileService';
-
 
 export const addQuestion = async (payload: NewQuestionDto, user: User) : Promise<QuestionResponseDto> => {
   const connection = await getFreshConnection()
@@ -64,6 +67,82 @@ export const addQuestion = async (payload: NewQuestionDto, user: User) : Promise
   return questionResponse;
  
 }
+
+export const questionAnwsers = async (questionUuid: string): Promise<QuestionResponseDto> => {
+  const connection = await getFreshConnection()
+  const QuestionRepo = connection.getRepository(Question)
+  const AnwserRepo = connection.getRepository(Answer)
+  const join = {
+    alias: "questions",
+    leftJoinAndSelect: {
+      user: "questions.author",
+    },
+  }
+
+  const questionExist = await QuestionRepo.findOne({
+    where: { uuid: questionUuid},
+    join
+  })
+
+  if(!questionExist){
+    throw new UnprocessableEntityError('Question Does Not Exist');
+  }
+
+  const joinAnwser = {
+    alias: "anwsers",
+    leftJoinAndSelect: {
+      user: "anwsers.author",
+    },
+  }
+
+  const questionAnwsers = await AnwserRepo.find({
+    where: { questionId: questionExist.id},
+    join: joinAnwser
+  })
+
+  if(questionAnwsers){
+    const transformQuestionAnAnwsers = await transformQuestion(questionExist, questionAnwsers);
+
+    return transformQuestionAnAnwsers
+  }
+
+  const transformQuestionAnAnwsers = await transformQuestion(questionExist);
+
+  return transformQuestionAnAnwsers
+
+}
+
+export const transformQuestion = async (question: Question, questionAnwsers?: Answer[]) : Promise<QuestionResponseDto> => {
+  // AnswerResponse
+  const questionAuthorProfile = await profileService.agentPublicProfile(question.author)
+  const questionImages = question.photos || []
+  const questionResponseImages: {url: string, mimetype: string, keyFromCloudProvider: string }[] = 
+  questionImages.map(pImage => _.omit(pImage, 'fileCloudProvider'))
+
+  if(questionAnwsers){
+
+    const answerResponses : AnswerResponse[] = []
+
+    for ( const answer of questionAnwsers){
+      const authorAnwser = await profileService.authorPublicProfile(answer.author);
+
+      const answerResponse: AnswerResponse = await AnwserService.transformQuestionAnwser(answer, authorAnwser);
+      answerResponses.push(answerResponse);
+
+    }
+
+    const transFormQuestion = question.toResponseDto(questionAuthorProfile, question, questionResponseImages, answerResponses)
+    
+    return transFormQuestion
+
+  }
+
+  const transFormQuestion = question.toResponseDto(questionAuthorProfile, question, questionResponseImages)
+    
+return transFormQuestion
+}
+
+
 
 export const transformQuestions = async (questions: Question[]) : Promise<QuestionResponseDto[]> => {
 

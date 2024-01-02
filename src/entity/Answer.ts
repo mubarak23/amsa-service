@@ -1,5 +1,7 @@
 import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 import { v4 as uuidv4 } from "uuid";
+import { AnswerResponse } from "../dto/AnswerResponse";
+import { IProfile } from "../dto/IProfileResponse";
 
 import TableColumns, { AnswerColumns } from "../enums/TableColumns";
 import Tables from "../enums/Tables";
@@ -47,5 +49,20 @@ export class Answer extends DefualtEntity {
     this.createdAt =  utcNow();
     return this;
   }
+
+  toResponseDto(
+    anwser: Answer,
+    authorPublicProfile: IProfile,
+  ): AnswerResponse {
+    return {
+      questionUuid: anwser.uuid,
+      author: authorPublicProfile,
+      content: anwser.content,
+      createdAt: anwser.createdAt,
+      updatedAt: anwser.updatedAt,
+    }
+  }
+
+
 
 }
