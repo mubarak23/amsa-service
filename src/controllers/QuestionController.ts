@@ -76,7 +76,8 @@ public async questions(@Request() req: any): Promise<IServerResponse<QuestionRes
 }
 
  
-  @Get('/all')
+// GET: list of all answers to a question
+  @Get('/:questionUuid')
   public async questionAnwsers(
     @Request() req: any,
     @Query('questionUuid') questionUuid: string,

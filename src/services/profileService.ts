@@ -2,6 +2,7 @@ import { In } from "typeorm";
 import { getFreshConnection } from "../db";
 import { IProfile } from "../dto/IProfileResponse";
 import { User } from "../entity/User";
+import { UnprocessableEntityError } from "../utils/error-response-types";
 
 
 export const agentPublicProfile = async (currentUser: User): Promise<IProfile> => {
@@ -27,6 +28,41 @@ export const authorPublicProfile = async (currentUser: User): Promise<IProfile> 
   return resProfile
 }
 
+
+export const updateProfileBio = async (currentUser: User, bio: string): Promise<IProfile> => {
+  const connection = await getFreshConnection()
+  const userRepo = connection.getRepository(User)
+
+  const account = await userRepo.findOne({
+    where: { id: currentUser.id}
+  })
+
+  if(!account){
+    throw new UnprocessableEntityError("User Does Not Exist")
+  }
+
+    // update user bio
+    userRepo
+    .createQueryBuilder()
+    .update(User)
+    .set({ 
+      bio: bio
+      })
+    .where({
+      uuid: account.uuid,
+    })
+    .execute();
+
+    const resProfile: IProfile =  {
+      userUuid: currentUser.uuid,
+      userName: currentUser.userName,
+      emailAddress: currentUser.emailAddress,
+      photo: currentUser.photo
+  }
+  return resProfile
+  
+
+ }
 
 export const getPublicProfileFromUserIds = async (userIds: number[]): Promise<IProfile[]> => {
     if (!userIds.length) {
