@@ -158,7 +158,7 @@ export const voteAnswerQuestion = async (payload: VoteAnwserDto, user: User) : P
 
   // save the count for the first one
   const newAnwserVoteCount = new AnswerVoteCount().initializeNewAnwserVoteCount(user.id, questionExist.id, answerExist.id)
-  await AnwserRepo.save(newAnwserVoteCount)
+  await AnswerVoteCountRepo.save(newAnwserVoteCount)
 
   // const answerResponse: AnswerResponse = {
   //   questionUuid: questionExist.uuid,

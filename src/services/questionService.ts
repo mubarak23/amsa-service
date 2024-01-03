@@ -11,7 +11,9 @@ import { AnswerResponse } from '../dto/AnswerResponse';
 import { NewQuestionDto } from "../dto/NewQuestionDto";
 import { QuestionResponseDto } from "../dto/QuestionResponseDto";
 import { Answer } from '../entity/Answer';
+import { AnswerVoteCount } from '../entity/AnwserVoteCount';
 import { Question } from "../entity/Question";
+import { QuestionVoteCount } from '../entity/QuestionVoteCount';
 import { User } from "../entity/User";
 import { UnprocessableEntityError } from '../utils/error-response-types';
 import * as AnwserService from './anwserService';
@@ -175,3 +177,101 @@ export const transformQuestions = async (questions: Question[]) : Promise<Questi
 
 }
 
+
+export const voteAnswerQuestion = async (questionUuid: string, user: User) : Promise<QuestionResponseDto> => {
+  const connection = await getFreshConnection()
+  const AnwserRepo = connection.getRepository(Answer)
+  const QuestionRepo = connection.getRepository(Question)
+  const AnswerVoteCountRepo = connection.getRepository(AnswerVoteCount)
+  const QuestionVoteCountRepo = connection.getRepository(QuestionVoteCount)
+
+  const join = {
+    alias: "questions",
+    leftJoinAndSelect: {
+      user: "questions.author",
+    },
+  }
+
+  const joinAnwser = {
+    alias: "anwsers",
+    leftJoinAndSelect: {
+      user: "anwsers.author",
+    },
+  }
+
+  const questionExist = await QuestionRepo.findOne({
+    where: { uuid: questionUuid},
+    join
+  })
+
+  if(!questionExist){
+    throw new UnprocessableEntityError('Question Does Not Exist')
+  }
+
+    // CANNOT VOTE YOUR ANSWER
+    if(questionExist.userId === user.id){
+      throw new UnprocessableEntityError("Cannot Vote Your Question")
+    }
+
+  const answerExist = await AnwserRepo.find({
+    where: { questionId: questionExist.id},
+    join: joinAnwser
+  })
+
+  if(!answerExist){
+    throw new UnprocessableEntityError("Answer to the Question Does Not Exist")
+  }
+ 
+  
+  // check the user has voted the Question
+  const questionVoteCount = await QuestionVoteCountRepo.findOne({
+    where: { userId: user.id, questionId: questionExist.id}
+  })
+
+ //  const authorAnwser = await profileService.authorPublicProfile(answerExist.author);
+    const questionAuthor = await profileService.authorPublicProfile(questionExist.author);
+  
+    if(questionVoteCount){
+
+    // update the count
+    QuestionVoteCountRepo
+    .createQueryBuilder()
+    .update(QuestionVoteCount)
+    .set({ 
+      voteCounts: questionVoteCount.voteCounts + 1,
+      })
+    .where({
+      uuid: questionVoteCount.id,
+    })
+    .execute();
+    
+    const questionWithAnwserResponse: QuestionResponseDto = {
+      uuid: questionExist.uuid,
+      title: questionExist.title,
+      content: questionExist.content,
+      photos: questionExist.photos,
+      userId: questionExist.userId,
+      createdAt: questionExist.createdAt,
+      updatedAt: questionExist.updatedAt,
+      author: questionAuthor,
+    }
+    return questionWithAnwserResponse;
+
+  }
+  // save the count for the first one
+  const newQuestionVoteCount = new QuestionVoteCount().initializeNewQuestionVoteCount(user.id, questionExist.id)
+  await AnswerVoteCountRepo.save(newQuestionVoteCount)
+
+  const questionResponse: QuestionResponseDto = {
+    uuid: questionExist.uuid,
+    title: questionExist.title,
+    content: questionExist.content,
+    photos: questionExist.photos,
+    userId: questionExist.userId,
+    createdAt: questionExist.createdAt,
+    updatedAt: questionExist.updatedAt,
+    author: questionAuthor,
+  }
+  return questionResponse;
+
+}
