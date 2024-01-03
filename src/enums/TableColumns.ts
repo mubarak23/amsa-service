@@ -50,6 +50,13 @@ export enum AnswerVoteCountColumns {
   VOTE_COUNTS = "vote_counts"
 }
 
+export enum QuestionVoteCountColumns {
+  UUID = "uuid",
+  QUESTION_ID = "question_id",
+  USER_ID = "user_id",
+  VOTE_COUNTS = "vote_counts"
+}
+
 export enum TicketColumns {
   UUID = "ticket_uuid",
   USER_ID = "user_id",
