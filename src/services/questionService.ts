@@ -11,7 +11,6 @@ import { AnswerResponse } from '../dto/AnswerResponse';
 import { NewQuestionDto } from "../dto/NewQuestionDto";
 import { QuestionResponseDto } from "../dto/QuestionResponseDto";
 import { Answer } from '../entity/Answer';
-import { AnswerVoteCount } from '../entity/AnwserVoteCount';
 import { Question } from "../entity/Question";
 import { QuestionVoteCount } from '../entity/QuestionVoteCount';
 import { User } from "../entity/User";
@@ -178,11 +177,9 @@ export const transformQuestions = async (questions: Question[]) : Promise<Questi
 }
 
 
-export const voteAnswerQuestion = async (questionUuid: string, user: User) : Promise<QuestionResponseDto> => {
+export const voteQuestion = async (questionUuid: string, user: User) : Promise<QuestionResponseDto> => {
   const connection = await getFreshConnection()
-  const AnwserRepo = connection.getRepository(Answer)
   const QuestionRepo = connection.getRepository(Question)
-  const AnswerVoteCountRepo = connection.getRepository(AnswerVoteCount)
   const QuestionVoteCountRepo = connection.getRepository(QuestionVoteCount)
 
   const join = {
@@ -192,12 +189,6 @@ export const voteAnswerQuestion = async (questionUuid: string, user: User) : Pro
     },
   }
 
-  const joinAnwser = {
-    alias: "anwsers",
-    leftJoinAndSelect: {
-      user: "anwsers.author",
-    },
-  }
 
   const questionExist = await QuestionRepo.findOne({
     where: { uuid: questionUuid},
@@ -213,22 +204,11 @@ export const voteAnswerQuestion = async (questionUuid: string, user: User) : Pro
       throw new UnprocessableEntityError("Cannot Vote Your Question")
     }
 
-  const answerExist = await AnwserRepo.find({
-    where: { questionId: questionExist.id},
-    join: joinAnwser
-  })
-
-  if(!answerExist){
-    throw new UnprocessableEntityError("Answer to the Question Does Not Exist")
-  }
- 
-  
   // check the user has voted the Question
   const questionVoteCount = await QuestionVoteCountRepo.findOne({
     where: { userId: user.id, questionId: questionExist.id}
   })
 
- //  const authorAnwser = await profileService.authorPublicProfile(answerExist.author);
     const questionAuthor = await profileService.authorPublicProfile(questionExist.author);
   
     if(questionVoteCount){
@@ -260,7 +240,7 @@ export const voteAnswerQuestion = async (questionUuid: string, user: User) : Pro
   }
   // save the count for the first one
   const newQuestionVoteCount = new QuestionVoteCount().initializeNewQuestionVoteCount(user.id, questionExist.id)
-  await AnswerVoteCountRepo.save(newQuestionVoteCount)
+  await QuestionVoteCountRepo.save(newQuestionVoteCount)
 
   const questionResponse: QuestionResponseDto = {
     uuid: questionExist.uuid,

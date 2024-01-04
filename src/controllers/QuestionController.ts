@@ -92,6 +92,25 @@ public async questions(@Request() req: any): Promise<IServerResponse<QuestionRes
   return resData
 }
 
+// vote a question 
+@Security("jwt")
+@Get('/vote/:questionUuid')
+public async Votequestion(
+  @Request() req: any,
+  @Query('questionUuid') questionUuid: string,
+  ): Promise<IServerResponse<QuestionResponseDto>>{
+  
+  const currentUser: User = req.user
+  const transformQuestionAfterVote= await QuestionService.voteQuestion(questionUuid, currentUser);
+
+  const resData : IServerResponse<QuestionResponseDto> = {
+    status: true,
+    data: transformQuestionAfterVote,
+    message: "Question Voted"
+}
+return resData
+}
+
 
   @Security("jwt")
   @Post('/add')
